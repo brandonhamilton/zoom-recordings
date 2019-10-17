@@ -24,7 +24,7 @@ main = do
       case r of
         Left err -> print err
         Right recs -> do
-          done <- concat <$> traverse saveMeeting (take 1 (recordingsMeetings recs))
+          done <- concat <$> traverse saveMeeting (recordingsMeetings recs)
           putTextLn $ "Deleting " <> (show . length $ done) <> " recordings"
           deleted <- traverse (uncurry deleteRecording) done
           putTextLn "Completed"
