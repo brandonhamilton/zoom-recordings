@@ -1,0 +1,72 @@
+name:                zoom-recordings
+version:             0.1.0.0
+github:              "brandonhamilton/zoom-recordings"
+license:             MIT
+author:              "Brandon Hamilton"
+maintainer:          "brandon.hamilton@gmail.com"
+copyright:           "2019 Brandon Hamilton"
+
+extra-source-files:
+- README.md
+
+description:         Please see the README on GitHub at <https://github.com/brandonhamilton/zoom-recordings#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- aeson
+- aeson-casing
+- bytestring
+- conduit
+- conduit-extra
+- directory
+- envy
+- filepath
+- http-client
+- http-client-tls
+- jose
+- monad-time
+- relude
+- req
+- req-conduit
+- servant-auth
+- servant-auth-client
+- servant-client
+- servant
+- time
+- text
+- yaml
+
+default-extensions:
+- DeriveAnyClass
+- DeriveFoldable
+- DeriveFunctor
+- DeriveGeneric
+- DeriveLift
+- DeriveTraversable
+- DerivingStrategies
+- EmptyCase
+- FlexibleContexts
+- FlexibleInstances
+- GeneralizedNewtypeDeriving
+- InstanceSigs
+- LambdaCase
+- MultiParamTypeClasses
+- NamedFieldPuns
+- NoImplicitPrelude
+- OverloadedStrings
+- ScopedTypeVariables
+- StandaloneDeriving
+
+library:
+  source-dirs: src
+
+executables:
+  zoom-recordings:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - zoom-recordings
