@@ -21,6 +21,7 @@ import qualified Crypto.JWT as Jose
 import Data.Aeson (FromJSON(..), ToJSON(..), genericParseJSON, genericToEncoding, genericToJSON, defaultOptions, constructorTagModifier)
 import Data.Aeson.Casing (aesonPrefix, snakeCase)
 import Data.Char (toLower)
+import Data.Maybe (maybe)
 import Data.Time.Calendar (addDays)
 import Data.Time.Clock (UTCTime(..), addUTCTime)
 import Data.Time.Format (formatTime, defaultTimeLocale)
@@ -135,8 +136,8 @@ zoomBaseUrl :: BaseUrl
 zoomBaseUrl = BaseUrl Https "api.zoom.us" 443 "v2"
 
 -- | Get all cloud recordings for the master account
-getRecordings :: Application (Either Text Recordings)
-getRecordings = do
+getRecordings :: Maybe Text -> Maybe Text -> Application (Either Text Recordings)
+getRecordings startDate endDate = do
   cfg <- ask
   token <- liftIO $ generateToken (apiKey cfg) (encodeUtf8 . apiSecret $ cfg)
   case token of
@@ -146,7 +147,7 @@ getRecordings = do
       now <- currentTime
       let getAccountRecordings :: Maybe Integer -> Maybe Text -> Maybe Text -> Application Recordings
           getAccountRecordings :<|> _ = zoomRecordings (mkClientEnv manager zoomBaseUrl) token'
-      Right <$> getAccountRecordings (Just 300) (from now) (to now)
+      Right <$> getAccountRecordings (Just 300) (maybe (from now) (Just . id) startDate) (maybe (to now) (Just . id) endDate)
   where
     -- from one month ago
     from :: UTCTime -> Maybe Text
