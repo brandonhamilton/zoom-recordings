@@ -107,7 +107,7 @@ type ZoomRecordings = Auth '[JWT] () :>
       ( -- Get Account Recordings
            "accounts" :> "me" :> "recordings" :> QueryParam "page_size" Integer :> QueryParam "from" Text :> QueryParam "to" Text :> Get '[JSON] Recordings
         -- Delete meeting recording
-      :<|> "meetings" :> Capture "meetingId" String  :> "recordings" :> Capture "recordingId" String  :> DeleteNoContent '[JSON] NoContent
+      :<|> "meetings" :> Capture "meetingId" String  :> "recordings" :> Capture "recordingId" String :> QueryParam "action" String :> DeleteNoContent '[JSON] NoContent
       )
 
 zoomRecordingsAPI :: Proxy ZoomRecordings
@@ -166,6 +166,6 @@ deleteRecording meetingId recordingId = do
     Left err -> pure . Left . show $ err
     Right token' -> do
       manager <- liftIO $ newManager tlsManagerSettings
-      let deleteAccountRecording :: String -> String -> Application NoContent
+      let deleteAccountRecording :: String -> String -> Maybe String -> Application NoContent
           _ :<|> deleteAccountRecording = zoomRecordings (mkClientEnv manager zoomBaseUrl) token'
-      Right <$> deleteAccountRecording (toString meetingId) (toString recordingId)
+      Right <$> deleteAccountRecording (toString meetingId) (toString recordingId) (Just "trash")
