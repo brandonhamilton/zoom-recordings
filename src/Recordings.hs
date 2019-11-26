@@ -14,7 +14,7 @@ import Control.Exception (try)
 import Data.Conduit ((.|), runConduitRes)
 import Data.Conduit.Binary (sinkFile)
 import Data.Maybe (fromJust)
-import Data.Text (replace, toLower)
+import Data.Text (replace, toLower, unpack)
 import Data.Yaml
 import Lib
 import Network.HTTP.Req
@@ -73,7 +73,7 @@ saveMeeting :: Meeting -> Application [(Text, Text)]
 saveMeeting m = do
     d <- asks dir
     let meetingIdentity = show . meetingId $ m
-        meetingDir = d </> toString description
+        meetingDir = d </> toString (makeValid . unpack $ description)
         description = replace "Z" "" (replace ":" "-" (replace "T" " - " $ meetingStartTime m)) <> " - " <> replace "/" "-" (meetingTopic m)
     liftIO $ putTextLn $ "Processing recording from " <> meetingTopic m <> " on " <> (show . meetingStartTime $ m) <> " (" <> meetingIdentity <> ")"
     liftIO $ createDirectoryIfMissing True meetingDir
