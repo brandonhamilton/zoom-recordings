@@ -1,4 +1,7 @@
-resolver: lts-14.10
+resolver: lts-15.5
 
 packages:
 - .
+
+extra-deps:
+- servant-auth-client-0.4.0.0

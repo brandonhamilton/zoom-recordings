@@ -23,6 +23,7 @@ import Relude
 import System.Directory
 import System.FilePath
 import System.IO
+import Text.URI (mkURI)
 import Zoom
 
 data DownloadException = FileSizeError Int Integer
@@ -37,7 +38,8 @@ downloadFile dir file uri expectedFileSize = liftIO $ try $ do
     let dest = dir </> file
         tmp = dest <.> "tmp"
     putTextLn $ "Downloading " <> toText file <> " (" <> show expectedFileSize <> " bytes)"
-    let (url, options) = fromJust (parseUrlHttps (encodeUtf8 uri))
+    mUri <- mkURI uri
+    let (url, options) = fromJust (useHttpsURI mUri)
     runReq defaultHttpConfig $ reqBr GET url NoReqBody options $ \r -> runConduitRes $ responseBodySource r .| sinkFile tmp
     -- Check that file was fully downloaded
     checkFileSize tmp

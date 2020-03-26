@@ -1,5 +1,5 @@
 name:                zoom-recordings
-version:             0.1.0.1
+version:             0.1.0.2
 github:              "brandonhamilton/zoom-recordings"
 license:             MIT
 author:              "Brandon Hamilton"
@@ -24,6 +24,7 @@ dependencies:
 - http-client
 - http-client-tls
 - jose
+- modern-uri
 - monad-time
 - options
 - relude
