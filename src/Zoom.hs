@@ -107,7 +107,7 @@ type ZoomRecordings = Auth '[JWT] () :>
       ( -- Get Account Recordings
            "accounts" :> "me" :> "recordings" :> QueryParam "page_size" Integer :> QueryParam "from" Text :> QueryParam "to" Text :> Get '[JSON] Recordings
         -- Delete meeting recording
-      :<|> "meetings" :> Capture "meetingId" String  :> "recordings" :> Capture "recordingId" String :> QueryParam "action" String :> DeleteNoContent '[JSON] NoContent
+      :<|> "meetings" :> Capture "meetingId" String  :> "recordings" :> Capture "recordingId" String :> QueryParam "action" String :> DeleteNoContent
       )
 
 zoomRecordingsAPI :: Proxy ZoomRecordings
@@ -147,7 +147,7 @@ getRecordings startDate endDate = do
       now <- currentTime
       let getAccountRecordings :: Maybe Integer -> Maybe Text -> Maybe Text -> Application Recordings
           getAccountRecordings :<|> _ = zoomRecordings (mkClientEnv manager zoomBaseUrl) token'
-      Right <$> getAccountRecordings (Just 300) (maybe (from now) (Just . id) startDate) (maybe (to now) (Just . id) endDate)
+      Right <$> getAccountRecordings (Just 300) (startDate <|> from now) (endDate <|> to now)
   where
     -- from one month ago
     from :: UTCTime -> Maybe Text

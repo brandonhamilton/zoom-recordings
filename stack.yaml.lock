@@ -5,15 +5,22 @@
 
 packages:
 - completed:
-    hackage: servant-auth-client-0.4.0.0@sha256:2875edeb95854422b87188d8385c5cf04333afcb92d8643f3af2b3a4642bddb8,3426
+    hackage: servant-auth-0.4.0.0@sha256:01d02dfb7df4747fc96442517146d7d4ab0e575e597a124e238e8763036ea4ff,2125
     pantry-tree:
-      size: 479
-      sha256: 491bd345773bf319bc6e703d781f9f139f7869a2d915c45f576cff3bcaf54ae3
+      size: 332
+      sha256: a7ec2c54fddfa417ee2467f1131b1d83ad43cc29ddfd4b98869fc924e4b5e980
   original:
-    hackage: servant-auth-client-0.4.0.0
+    hackage: servant-auth-0.4.0.0
+- completed:
+    hackage: servant-auth-client-0.4.1.0@sha256:a93f041c3c293eca6e2e2e1a2ed97e58fbbd0e123caeff9e484a68d56272632f,3342
+    pantry-tree:
+      size: 480
+      sha256: 7dc49084631585c81a5505b49d041e3152ffb4a561c3ffa175c1977dfebd19ed
+  original:
+    hackage: servant-auth-client-0.4.1.0
 snapshots:
 - completed:
-    size: 491372
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/15/5.yaml
-    sha256: 1b549cfff328040c382a70a84a2087aac8dab6d778bf92f32a93a771a1980dfc
-  original: lts-15.5
+    size: 563098
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/17/1.yaml
+    sha256: 395775c03e66a4286f134d50346b0b6f1432131cf542886252984b4cfa5fef69
+  original: lts-17.1

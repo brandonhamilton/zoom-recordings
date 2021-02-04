@@ -1,7 +1,10 @@
-resolver: lts-15.5
+resolver: lts-17.1
 
 packages:
 - .
 
 extra-deps:
-- servant-auth-client-0.4.0.0
+- servant-auth-0.4.0.0
+- servant-auth-client-0.4.1.0
+
+allow-newer: true

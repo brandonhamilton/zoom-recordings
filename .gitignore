@@ -2,3 +2,4 @@
 zoom-recordings.cabal
 *~
 .DS_Store
+dist-newstyle/

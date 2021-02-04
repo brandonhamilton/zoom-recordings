@@ -23,13 +23,14 @@ data MainOptions = MainOptions
     }
 
 instance Options MainOptions where
-  defineOptions = pure MainOptions
-      <*> simpleOption "delete" False
+  defineOptions = MainOptions
+      <$> simpleOption "delete" False
           "Delete recordings after downloading"
       <*> simpleOption "start" Nothing
           "Start date, eg: 2019-11-31"
       <*> simpleOption "end" Nothing
           "End date, eg: 2019-11-31"
+
 main :: IO ()
 main = runCommand $ \opts args -> do
   env <- decodeEnv :: IO (Either String Config)
@@ -38,7 +39,7 @@ main = runCommand $ \opts args -> do
     Right cfg -> flip runReaderT cfg $ runApplication $ do
       now <- currentTime
       putTextLn $ "Start downloading Zoom recordings at " <> show now
-      r <- getRecordings (pack <$> (optStartDate opts)) (pack <$> (optEndDate opts))
+      r <- getRecordings (pack <$> optStartDate opts) (pack <$> optEndDate opts)
       case r of
         Left err -> print err
         Right recs -> do
@@ -48,6 +49,6 @@ main = runCommand $ \opts args -> do
             putTextLn $ "Deleting " <> (show . length $ done) <> " recordings"
             deleted <- traverse (uncurry deleteRecording) done
             pure ()
-          else putTextLn $ "Not deleting recordings after download"
+          else putTextLn "Not deleting recordings after download"
           putTextLn "Completed"
           pure ()
