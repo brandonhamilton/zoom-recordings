@@ -3,3 +3,9 @@ zoom-recordings.cabal
 *~
 .DS_Store
 dist-newstyle/
+
+.env
+.devenv*
+devenv.local.nix
+.direnv
+

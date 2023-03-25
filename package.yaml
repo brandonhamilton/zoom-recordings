@@ -1,5 +1,5 @@
 name:                zoom-recordings
-version:             0.1.0.3
+version:             0.1.1.0
 github:              "brandonhamilton/zoom-recordings"
 license:             MIT
 author:              "Brandon Hamilton"
@@ -71,4 +71,5 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
+    - dotenv
     - zoom-recordings

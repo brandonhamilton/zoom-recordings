@@ -13,10 +13,12 @@ import Relude
 import System.Envy
 
 data Config = Config
-  { apiKey :: Text
-  -- ^ Zoom API Key
-  , apiSecret :: Text
-  -- ^ Zoom API Secret
+  { accountId :: Text
+  -- ^ Zoom API OAuth Account ID
+  , clientId :: Text
+  -- ^ Zoom API OAuth Client ID
+  , clientSecret :: Text
+  -- ^ Zoom API  OAuth Client Secret
   , dir :: FilePath
   -- ^ Destination directory
   } deriving (Generic, Show)

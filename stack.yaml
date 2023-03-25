@@ -1,10 +1,9 @@
-resolver: lts-17.1
+resolver: lts-20.15
+
+system-ghc: true
+
+nix:
+  enable: true
 
 packages:
 - .
-
-extra-deps:
-- servant-auth-0.4.0.0
-- servant-auth-client-0.4.1.0
-
-allow-newer: true

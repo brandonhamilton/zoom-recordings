@@ -7,14 +7,16 @@ module Main where
 
 import Control.Applicative
 import Control.Monad.Time (currentTime)
+import Configuration.Dotenv (loadFile, defaultConfig)
 import Data.Text (pack)
 import Data.Time.Format (formatTime, defaultTimeLocale)
 import Lib
 import Options
-import Recordings
+import Recordings ( saveMeeting )
 import Relude
-import System.Envy
+import System.Envy ( decodeEnv )
 import Zoom
+import qualified Configuration.Dotenv as DE
 
 data MainOptions = MainOptions
     { optDeleteRecordings :: Bool
@@ -33,6 +35,7 @@ instance Options MainOptions where
 
 main :: IO ()
 main = runCommand $ \opts args -> do
+  loadFile defaultConfig
   env <- decodeEnv :: IO (Either String Config)
   case env of
     Left err -> print err

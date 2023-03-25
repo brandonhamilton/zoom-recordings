@@ -1,0 +1,10 @@
+cradle:
+  stack:
+    - path: "./src"
+      component: "zoom-recordings:lib"
+
+    - path: "./app/Main.hs"
+      component: "zoom-recordings:exe:zoom-recordings"
+
+    - path: "./app/Paths_zoom_recordings.hs"
+      component: "zoom-recordings:exe:zoom-recordings"

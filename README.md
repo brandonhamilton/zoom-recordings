@@ -2,11 +2,12 @@
 
 Download and remove Cloud Recordings from a Zoom.us account.
 
-Obtain your API Key/Secret by following the [JWT With Zoom](https://marketplace.zoom.us/docs/guides/authorization/jwt/jwt-with-zoom) guide.
+Obtain your App Credentials by following the [Server-to-Server OAuth app](https://developers.zoom.us/docs/guides/build/server-to-server-oauth-app) guide.
 
 ### Configuration
 
 The following environment variables are expected
-- `API_KEY`: Zoom JWT API Key
-- `API_SECRET` Zoom JWT API Secret
+- `ACCOUNT_ID`: Zoom App Credentials Account ID
+- `CLIENT_ID`: Zoom App Credentials Client ID
+- `CLIENT_SECRET`: Zoom App Credentials Client secret
 - `DIR`: Destination directory

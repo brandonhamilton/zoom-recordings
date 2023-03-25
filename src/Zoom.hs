@@ -19,7 +19,7 @@ import Control.Monad.Time (currentTime)
 import qualified Crypto.JOSE as Jose
 import qualified Crypto.JWT as Jose
 import Data.Aeson (FromJSON(..), ToJSON(..), genericParseJSON, genericToEncoding, genericToJSON, defaultOptions, constructorTagModifier)
-import Data.Aeson.Casing (aesonPrefix, snakeCase)
+import Data.Aeson.Casing (aesonPrefix, snakeCase, aesonDrop)
 import Data.Char (toLower)
 import Data.Maybe (maybe)
 import Data.Time.Calendar (addDays)
@@ -103,6 +103,46 @@ instance ToJSON Recordings where
   toJSON     = genericToJSON $ aesonPrefix snakeCase
   toEncoding = genericToEncoding $ aesonPrefix snakeCase
 
+data OAuthToken = OAuthToken
+  { accessToken :: Text
+  , tokenType :: Text
+  , expiresIn :: Integer
+  , scope :: Text
+  } deriving (Generic, Show)
+
+instance FromJSON OAuthToken where
+  parseJSON = genericParseJSON $ aesonDrop 0 snakeCase
+
+instance ToJSON OAuthToken where
+  toJSON     = genericToJSON $ aesonDrop 0 snakeCase
+  toEncoding = genericToEncoding $ aesonDrop 0 snakeCase
+
+-- Token Authentication API
+
+type ZoomToken = Servant.API.BasicAuth "zoom.us" () :> "oauth" :> "token" :> QueryParam "grant_type" Text :>  QueryParam "account_id" Text :> Post '[JSON] OAuthToken
+
+zoomTokenAPI :: Proxy ZoomToken
+zoomTokenAPI = Proxy
+
+zoomToken :: ClientEnv -> Client Application ZoomToken
+zoomToken env = hoistClient zoomTokenAPI transform (client zoomTokenAPI)
+  where
+    transform :: ClientM a -> Application a
+    transform = fmap (either (error . show) Relude.id) . liftIO . flip runClientM env
+
+getAccessToken :: Manager -> Application (Either Text Token)
+getAccessToken manager = do
+    cfg <- ask
+    let auth = BasicAuthData (encodeUtf8 . clientId $ cfg) (encodeUtf8 . clientSecret $ cfg)
+    let getOAuthToken :: BasicAuthData -> Maybe Text -> Maybe Text -> Application OAuthToken
+        getOAuthToken = zoomToken (mkClientEnv manager zoomTokenBaseUrl)
+    Right . Token . encodeUtf8 . accessToken <$> getOAuthToken auth (Just "account_credentials") (Just (accountId cfg))
+  where
+    zoomTokenBaseUrl :: BaseUrl
+    zoomTokenBaseUrl = BaseUrl Https "api.zoom.us" 443 ""
+
+-- Recordings API
+
 type ZoomRecordings = Auth '[JWT] () :>
       ( -- Get Account Recordings
            "accounts" :> "me" :> "recordings" :> QueryParam "page_size" Integer :> QueryParam "from" Text :> QueryParam "to" Text :> Get '[JSON] Recordings
@@ -118,32 +158,18 @@ zoomRecordings env = hoistClient zoomRecordingsAPI transform (client zoomRecordi
   where
     transform :: ClientM a -> Application a
     transform = fmap (either (error . show) Relude.id) . liftIO . flip runClientM env
-
--- | Generate signed JWT token
-generateToken :: Text -> ByteString -> IO (Either Jose.Error Token)
-generateToken apiKey secret = runExceptT $ do
-    c <- claims
-    jwt <- Jose.signClaims (Jose.fromOctets secret) (Jose.newJWSHeader ((), Jose.HS256)) c
-    pure $ Token $ toStrict $ Jose.encodeCompact jwt
-  where
-    claims = do
-      t <- currentTime
-      pure $ Jose.emptyClaimsSet
-        & Jose.claimIss .~ Just (fromString . toString $ apiKey)
-        & Jose.claimExp .~ Just (Jose.NumericDate (addUTCTime 60 t))
-
+  
 zoomBaseUrl :: BaseUrl
 zoomBaseUrl = BaseUrl Https "api.zoom.us" 443 "v2"
 
 -- | Get all cloud recordings for the master account
 getRecordings :: Maybe Text -> Maybe Text -> Application (Either Text Recordings)
 getRecordings startDate endDate = do
-  cfg <- ask
-  token <- liftIO $ generateToken (apiKey cfg) (encodeUtf8 . apiSecret $ cfg)
+  manager <- liftIO $ newManager tlsManagerSettings
+  token <- getAccessToken manager
   case token of
     Left err -> pure . Left . show $ err
     Right token' -> do
-      manager <- liftIO $ newManager tlsManagerSettings
       now <- currentTime
       let getAccountRecordings :: Maybe Integer -> Maybe Text -> Maybe Text -> Application Recordings
           getAccountRecordings :<|> _ = zoomRecordings (mkClientEnv manager zoomBaseUrl) token'
@@ -159,9 +185,9 @@ getRecordings startDate endDate = do
 -- | Delete a recording from the Zoom Cloud
 deleteRecording :: Text -> Text -> Application (Either Text NoContent)
 deleteRecording meetingId recordingId = do
-  cfg <- ask
   liftIO $ putTextLn $ "Deleting recording " <> recordingId <> " from meeting " <> meetingId
-  token <- liftIO $ generateToken (apiKey cfg) (encodeUtf8 . apiSecret $ cfg)
+  manager <- liftIO $ newManager tlsManagerSettings
+  token <- getAccessToken manager
   case token of
     Left err -> pure . Left . show $ err
     Right token' -> do
